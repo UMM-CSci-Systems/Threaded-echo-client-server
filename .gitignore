@@ -1,6 +1,10 @@
 *.class
 !test/sampleBin/*.class
 
+# Ignore the tmp directory that Aruba creates and puts all of its test
+# files in.
+test/tmp
+
 # Package Files #
 *.jar
 *.war
