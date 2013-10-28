@@ -1,5 +1,5 @@
 @announce
-Feature: Analyze log entries, collecting user name, location, and timeline data
+Feature: Be able to echo both text and binary files.
   In order to demonstrate my understanding of remote procedure calls
   As a student
   I want to be able to send text and images to a remote server, then receive the files back with no changes.
