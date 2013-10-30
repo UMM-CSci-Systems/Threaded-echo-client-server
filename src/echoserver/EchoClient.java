@@ -18,20 +18,11 @@ public class EchoClient {
 		InputStream socketInputStream = socket.getInputStream();
 		OutputStream socketOutputStream = socket.getOutputStream();
 		int readByte;
-		int numBytes = 0;
 		while ((readByte = System.in.read()) != -1) {
 			socketOutputStream.write(readByte);
 			int socketByte = socketInputStream.read();
 			System.out.write(socketByte);
-			++numBytes;
 		}
-		socket.shutdownOutput();
-//		try {
-//			Thread.sleep(1000);
-//		} catch (InterruptedException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-		System.err.println("The client processed " + numBytes + " bytes");
+		System.out.flush();
 	}
 }
