@@ -1,7 +1,7 @@
 Echo Server
 ===========
 
-Your starter code for this lab is a fully worked solution for the Echo Server (sub)lab for Lab 6 of CSci 3401.
+Your starter code for this (sub)lab is a fully worked solution for the Echo Server (sub)lab for Lab 6 of CSci 3401.
 
 Your goals:
 -   Re-write your echo client from the previous lab to use threads to separate the two communication directions.
