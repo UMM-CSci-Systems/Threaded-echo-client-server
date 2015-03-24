@@ -53,7 +53,9 @@ Write up a summary of your results. What (if anything) were you able to observe?
 
 The following script might be useful as a tool for spinning up multiple processes that all interact with the server at the same time and time the results. Note that this isn't perfect, as it generates all the client processes on the same computer, which means that they'll all be contending for CPU, disk, and network resources on that box. 
 
+
 <span class="twiki-macro CODE"></span> 
+```bash
     \#/bin/bash
 
     numCalls=$1
@@ -68,6 +70,6 @@ The following script might be useful as a tool for spinning up multiple processe
     wait 
     echo "Done" 
     date 
-
+```
 <span class="twiki-macro ENDCODE"></span>
 
