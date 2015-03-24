@@ -56,14 +56,14 @@ The following script might be useful as a tool for spinning up multiple processe
 
 <span class="twiki-macro CODE"></span> 
 ```bash
-    \#/bin/bash
+    #!/bin/bash
 
     numCalls=$1
 
-    for (( i=1; i\<=$numCalls; i++ )) 
+    for (( i=1; i<=$numCalls; i++ )) 
     do 
         echo "Doing run $i" 
-        java echo.EchoClient \< some\_big\_file \> /dev/null & 
+        java echo.EchoClient < some_big_file > /dev/null & 
     done 
     echo "Now waiting" 
     date 
