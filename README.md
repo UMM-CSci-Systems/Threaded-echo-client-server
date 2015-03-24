@@ -1,61 +1,11 @@
 Echo Server
 ===========
 
-A fully worked solution for the Echo Server (sub)lab for Lab 6 of CSci 3401.
+Your starter code for this lab is a fully worked solution for the Echo Server (sub)lab for Lab 6 of CSci 3401.
 
-Background
-----------
-
-This lab will give us some practical experience with threads, which are covered in a more abstract way in Chapter 5 of the text. There are three different activities:
-
--   Write a threaded version of a minimum pairwise distance problem that takes advantage of multiple processors/cores on your computer to speed up the process.
+Your goals:
 -   Re-write your echo client from the previous lab to use threads to separate the two communication directions.
 -   Make your echo server multi-threaded
-
-You should feel free to approach these in which ever order amuses you. You should probably read through the entire lab and make a conscious decision about which part you want to start in the scheduled lab period, and then have a plan for how to approach the parts that remain after the lab period.
-
-<span class="twiki-macro TOC"></span>
-
-Some resources
---------------
-
-Here are some potential resources. The first link to the tutorial should be particularly helpful.
-
--   <http://java.sun.com/docs/books/tutorial/essential/concurrency/index.html>
-    -   A fairly comprehensive set of tutorials on Java threads
-    -   This includes a [(brief) review of the different thread pool generators](http://java.sun.com/docs/books/tutorial/essential/concurrency/pools.html).
--   <http://research.microsoft.com/apps/pubs/default.aspx?id=70177>
-    -   "An introduction to programming with C\# threads" by Bissell. This is a classic from 1989 updated for C\# (which is a *lot* like Java) in 2006. Very useful stuff.
--   <http://www.cs.washington.edu/education/courses/cse451/06au/readings/java-threads-intro.pdf>
-    -   "An Introduction to Programming with Java Threads" by Andrew Whitaker. A brief overview of threads in Java that's probably most useful if read in conjunction with Bissell's longer, more detailed piece.
--   <http://java.sun.com/docs/books/tutorial/uiswing/concurrency/index.html>
-    -   A nice overview of how to use threads in Swing.
--   <http://weblogs.java.net/blog/kgh/archive/2004/10/multithreaded_t.html>
-    -   A discussion of why Swing isn't threadsafe, and why most industrial strength GUI packages aren't.
--   <http://weblogs.java.net/blog/chet/archive/2004/08/threadaches.html>
-    -   Discussion of some of the problems that come with (over) using threads.
-
-Minimum pairwise distance
--------------------------
-
-In an experiment, both the starter code *and* the write-up for this [are on Github](https://github.com/UMM-CSci-3401-F13/Minimum-pairwise-distance-starter). You should fork that repo and then follow the write-up there.
-
-In this lab there are two classes with a main method, SerialMain and ThreadedMain. Our classes are in a package so you'll have to include that when you make the call. It will look like this: 
- 
-
-<span class="twiki-macro CODE">bash</span>
-
-    time    java mpd.SerialMain 1000 
-    
-<span class="twiki-macro ENDCODE"></span>
-
-Just replace SerialMain with ThreadedMain to run that one. The parameter can (and probably should) be modified to different values to compare the results. You'll get timing output something like
-
-    real    0m9.325s
-    user    0m27.580s
-    sys     0m0.228s
-
-The "real" entry is essentially the wall clock time the process took to complete. "user" is the amount of CPU time was spent running the code, and "sys" is time spent in system processes such as allocating memory or reading and writing files. On a single core system "real" is roughly the sum of "user" and "sys" (plus some noise). On a multi-core system, "user" can be bigger than real (as in the example above) because multiple threads running in parallel all add to the "user" value. So if you have two threads that each run for 10 seconds, the wall-clock time ("real") might be 12s, but the "user" time might be 23s.
 
 Add threads to your echo client
 -------------------------------
