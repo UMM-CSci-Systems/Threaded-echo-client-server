@@ -2,3 +2,105 @@ Echo Server
 ===========
 
 A fully worked solution for the Echo Server (sub)lab for Lab 6 of CSci 3401.
+
+Background
+----------
+
+This lab will give us some practical experience with threads, which are covered in a more abstract way in Chapter 5 of the text. There are three different activities:
+
+-   Write a threaded version of a minimum pairwise distance problem that takes advantage of multiple processors/cores on your computer to speed up the process.
+-   Re-write your echo client from the previous lab to use threads to separate the two communication directions.
+-   Make your echo server multi-threaded
+
+You should feel free to approach these in which ever order amuses you. You should probably read through the entire lab and make a conscious decision about which part you want to start in the scheduled lab period, and then have a plan for how to approach the parts that remain after the lab period.
+
+<span class="twiki-macro TOC"></span>
+
+Some resources
+--------------
+
+Here are some potential resources. The first link to the tutorial should be particularly helpful.
+
+-   <http://java.sun.com/docs/books/tutorial/essential/concurrency/index.html>
+    -   A fairly comprehensive set of tutorials on Java threads
+    -   This includes a [(brief) review of the different thread pool generators](http://java.sun.com/docs/books/tutorial/essential/concurrency/pools.html).
+-   <http://research.microsoft.com/apps/pubs/default.aspx?id=70177>
+    -   "An introduction to programming with C\# threads" by Bissell. This is a classic from 1989 updated for C\# (which is a *lot* like Java) in 2006. Very useful stuff.
+-   <http://www.cs.washington.edu/education/courses/cse451/06au/readings/java-threads-intro.pdf>
+    -   "An Introduction to Programming with Java Threads" by Andrew Whitaker. A brief overview of threads in Java that's probably most useful if read in conjunction with Bissell's longer, more detailed piece.
+-   <http://java.sun.com/docs/books/tutorial/uiswing/concurrency/index.html>
+    -   A nice overview of how to use threads in Swing.
+-   <http://weblogs.java.net/blog/kgh/archive/2004/10/multithreaded_t.html>
+    -   A discussion of why Swing isn't threadsafe, and why most industrial strength GUI packages aren't.
+-   <http://weblogs.java.net/blog/chet/archive/2004/08/threadaches.html>
+    -   Discussion of some of the problems that come with (over) using threads.
+
+Minimum pairwise distance
+-------------------------
+
+In an experiment, both the starter code *and* the write-up for this [are on Github](https://github.com/UMM-CSci-3401-F13/Minimum-pairwise-distance-starter). You should fork that repo and then follow the write-up there.
+
+In this lab there are two classes with a main method, SerialMain and ThreadedMain. Our classes are in a package so you'll have to include that when you make the call. It will look like this: <span class="twiki-macro CODE">bash</span> time java mpd.SerialMain 1000 <span class="twiki-macro ENDCODE"></span> Just replace SerialMain with ThreadedMain to run that one. The parameter can (and probably should) be modified to different values to compare the results. You'll get timing output something like
+
+    real    0m9.325s
+    user    0m27.580s
+    sys 0m0.228s
+
+The "real" entry is essentially the wall clock time the process took to complete. "user" is the amount of CPU time was spent running the code, and "sys" is time spent in system processes such as allocating memory or reading and writing files. On a single core system "real" is roughly the sum of "user" and "sys" (plus some noise). On a multi-core system, "user" can be bigger than real (as in the example above) because multiple threads running in parallel all add to the "user" value. So if you have two threads that each run for 10 seconds, the wall-clock time ("real") might be 12s, but the "user" time might be 23s.
+
+Add threads to your echo client
+-------------------------------
+
+In a previous lab you wrote an echo server and an echo client, but without threads it's possible for your client code to lock up whatever larger Java program it happens to be part of. An alternative that simplifies the thinking quite a bit is to add two threads to your client:
+
+-   One reads bytes from standard input (the keyboard) and writes the to the server socket
+-   One reads bytes from the server socket and writes them to standard output (the screen)
+
+This way the reading can never block the writing and vice versa.
+
+For this your group should pick one of your Echo Server code bases from the previous lab and then fork that to create a new repository for this project (and the next, where you add threads to the server code). <span class="twiki-macro X"></span> **Make sure you change the name of your forked project to (a) reflect your new team name and (b) indicate that this is the *threaded* version.** This will greatly help the TA when sorting out which from what later.
+
+<span class="twiki-macro X"></span> ***You can't just fork the project because Github won't allow you to fork a project twice.*** This is a Github restriction, not a Git limitation, and [this post](http://adrianshort.org/2011/11/08/create-multiple-forks-of-a-github-repo/) describes how to create a second fork of a project. It requires that you do some command line Git, but once that's all done you should be able to go back to Eclipse and Github for your project management. <span class="twiki-macro X"></span> Note that the URL he uses in his example has the form `git@github.com…` but you will *definitely* need a URL of the form `https://github.com…`. You'll get the right URL if you copy the URL from the Github project page, but I wanted to mention the issue since it will look different than his example.
+
+While adding threads ultimately does make the logic simpler, there is still the potential for strange interactions here, so be careful and ask questions if it's making you crazy. The part I found a bit tricky was how to shut everything down gracefully. The problem there is that when I terminate my keyboard input (through CTRL-D, for example) several things need to happen (and in a particular order):
+
+-   I need the client to tell the server that it's done sending information.
+    -   This is necessary so that the server can finish sending any remaining data.
+    -   It's also necessary for the server to shut down the socket after it's done, and it won't know to do that unless it hears from the client that we're done.
+-   ***BUT*** I need to do this without closing down the socket, since there might be data coming back from the server that hasn't been sent yet.
+    -   This means I can't close the socket, or even close the `OutputStream` that connects the client to the server. (If I close the stream, it closes the socket. This isn't necessarily obvious, but [it's documented in the Java API](http://java.sun.com/javase/6/docs/api/java/net/Socket.html#getOutputStream()).)
+-   I found the `Socket.shutdownOutput` method *very* useful in this regard :-).
+-   I also found it necessary to call `flush()` on my standard output to make sure the last bytes were written out before that standard output thread finished up.
+-   One way to test that you're handling binary data correctly is to send and receive a JPEG. I took a small JPEG (my avatar, which is only 8Kb), sent it, and compared what I got back with the original:
+    -   `java umm.csci3401.EchoClientMain < Avatar.jpg > Copy_of_avatar.jpg`
+    -   `diff Avatar.jpg Copy_of_avatar.jpg`
+-   One of the nice things about this as a test is that incomplete JPEGs will actually display. Thus before I had the necessary `flush()` on my standard output, I was getting a file that was a little short (and so the `diff` said they were different), but was visibly "heading in the right direction". (It was obviously my avatar image, but with a little noise in the bottom right corner where the last bit of data was missing.) This made it clear that my echo system was correctly transmitting the binary data (I wasn't converting binary to character, and throwing away some bits in the process), I just wasn't transmitting *enough* of it. If opening `Copy_of_avatar.jpg` had displayed gobbledy-gook, or I'd gotten an error saying it wasn't a properly formatted image file, then I'd have reason to believe that the problem was in my handling of the binary data instead.
+
+Make your echo server multi-threaded
+------------------------------------
+
+One weakness of the echo server from the previous lab is the server can only talk to one client at a time; if someone else tries to connect to it they'll hang until the first person finishes. In this part of the lab your job is to make your server multi-threaded so that it can respond to multiple requests at the same time. Essentially each time the server receives a request, it should spawn a new thread and process that request entirely within that thread.
+
+If you just take the straightforward approach and create a new thread every time there's a connection, then you can potentially kill the server by spawning more threads than it can handle. An alternative is to use thread pools, which are more controlled ways of creating threads. Check out the Javadocs for [Executors](http://download.oracle.com/javase/6/docs/api/java/util/concurrent/Executors.html) and [ExecutorService](http://download.oracle.com/javase/6/docs/api/java/util/concurrent/ExecutorService.html) for the details, but the short version is you can create things like fixed thread pools (where there are a fixed number of threads) or cached thread pools (where old threads are re-used instead of allocating new threads).
+
+At a minimum you should get the straightforward approach (where you create a new thread for every connection) to work. It would be good to try to get at least one of the thread pool approaches to work as well. You should try throwing a bunch of clients at them, and report on how they handle the load.
+
+-   You might find it useful to automate the process of "throwing a bunch of clients at them". You could, for example, have a loop that starts up a bunch of clients and has each one send a file to the server, dumping everything that's returned to `/dev/null`, and runs it in the background.
+    -   E.g., `java umm.csci3401.EchoClient < my_file > /dev/null &`
+-   If the file's big enough that it's not transmitted "instantly", then you'll end up with multiple clients competing for the server's attention, and you should see differences in the behavior of the server with the different thread pool schemes.
+-   <span class="twiki-macro X"></span> On the other hand, if the file's really huge and you start up a ton of clients, ***you risk generating enough load that you severely bog down or even crash key lab services***. To minimize the likelihood of a Bad Thing Happening, please the following precautions:
+    -   Have your client and server both run on the same machine. This way if your experiments do run amok, you'll probably only mess up the client you're sitting at instead of the entire lab.
+    -   If you think you need a bigger file, work up to it incrementally. Don't just jump to the biggest file you can find.
+    -   Similarly, increase the number of clients incrementally.
+    -   Have the file you're reading (and any file you're writing if you don't use `/dev/null`) be in the temp directory ( `/tmp`) instead of someplace like your home directory. Files in your home directory are on the NFS server, so reading them involves going out across the network to the NFS server to access them. Files `/tmp` are actually on the client's local hard drive, so reads and writes will be strictly local and only affect that machine.
+
+Write up a summary of your results. What (if anything) were you able to observe? How, for example, does the execution time of your script scale with the number of times you hit the server in the single- and multi-threaded approaches?
+
+The following script might be useful as a tool for spinning up multiple processes that all interact with the server at the same time and time the results. Note that this isn't perfect, as it generates all the client processes on the same computer, which means that they'll all be contending for CPU, disk, and network resources on that box. <span class="twiki-macro CODE">bash</span> \#/bin/bash
+
+numCalls=$1
+
+for (( i=1; i\<=$numCalls; i++ )) do echo "Doing run $i" java echo.EchoClient \< some\_big\_file \> /dev/null & done echo "Now waiting" date wait echo "Done" date <span class="twiki-macro ENDCODE"></span>
+
+Groups
+------
