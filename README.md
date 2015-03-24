@@ -17,10 +17,6 @@ In a previous lab you wrote an echo server and an echo client, but without threa
 
 This way the reading can never block the writing and vice versa.
 
-For this your group should pick one of your Echo Server code bases from the previous lab and then fork that to create a new repository for this project (and the next, where you add threads to the server code). <span class="twiki-macro X"></span> **Make sure you change the name of your forked project to (a) reflect your new team name and (b) indicate that this is the *threaded* version.** This will greatly help the TA when sorting out which from what later.
-
-<span class="twiki-macro X"></span> ***You can't just fork the project because Github won't allow you to fork a project twice.*** This is a Github restriction, not a Git limitation, and [this post](http://adrianshort.org/2011/11/08/create-multiple-forks-of-a-github-repo/) describes how to create a second fork of a project. It requires that you do some command line Git, but once that's all done you should be able to go back to Eclipse and Github for your project management. <span class="twiki-macro X"></span> Note that the URL he uses in his example has the form `git@github.com…` but you will *definitely* need a URL of the form `https://github.com…`. You'll get the right URL if you copy the URL from the Github project page, but I wanted to mention the issue since it will look different than his example.
-
 While adding threads ultimately does make the logic simpler, there is still the potential for strange interactions here, so be careful and ask questions if it's making you crazy. The part I found a bit tricky was how to shut everything down gracefully. The problem there is that when I terminate my keyboard input (through CTRL-D, for example) several things need to happen (and in a particular order):
 
 -   I need the client to tell the server that it's done sending information.
@@ -55,11 +51,23 @@ At a minimum you should get the straightforward approach (where you create a new
 
 Write up a summary of your results. What (if anything) were you able to observe? How, for example, does the execution time of your script scale with the number of times you hit the server in the single- and multi-threaded approaches?
 
-The following script might be useful as a tool for spinning up multiple processes that all interact with the server at the same time and time the results. Note that this isn't perfect, as it generates all the client processes on the same computer, which means that they'll all be contending for CPU, disk, and network resources on that box. <span class="twiki-macro CODE">bash</span> \#/bin/bash
+The following script might be useful as a tool for spinning up multiple processes that all interact with the server at the same time and time the results. Note that this isn't perfect, as it generates all the client processes on the same computer, which means that they'll all be contending for CPU, disk, and network resources on that box. 
 
-numCalls=$1
+<span class="twiki-macro CODE">bash</span> 
+    \#/bin/bash
 
-for (( i=1; i\<=$numCalls; i++ )) do echo "Doing run $i" java echo.EchoClient \< some\_big\_file \> /dev/null & done echo "Now waiting" date wait echo "Done" date <span class="twiki-macro ENDCODE"></span>
+    numCalls=$1
 
-Groups
-------
+    for (( i=1; i\<=$numCalls; i++ )) 
+    do 
+        echo "Doing run $i" 
+        java echo.EchoClient \< some\_big\_file \> /dev/null & 
+    done 
+    echo "Now waiting" 
+    date 
+    wait 
+    echo "Done" 
+    date 
+
+<span class="twiki-macro ENDCODE"></span>
+
