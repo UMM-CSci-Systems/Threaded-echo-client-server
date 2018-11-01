@@ -1,4 +1,4 @@
-Echo Server
+Threaded Echo Client-Server
 ===========
 
 Your goals:
@@ -63,14 +63,16 @@ At a minimum you should get the straightforward approach (where you create a
 
 -   You might find it useful to automate the process of "throwing a bunch of clients at them". You could, for example, have a loop that starts up a bunch of clients and has each one send a file to the server, dumping everything that's returned to `/dev/null`, and runs it in the background.
     -   E.g., `java umm.csci3401.EchoClient < my_file > /dev/null &`
--   If the file's big enough that it's not transmitted "instantly", then you'll end up with multiple clients competing for the server's attention, and you should see differences in the behavior of the server with the different thread pool schemes.
--   On the other hand, if the file's really huge and you start up a ton of clients, ***you risk generating enough load that you severely bog down or even crash key lab services***. To minimize the likelihood of a Bad Thing Happening, please the following precautions:
+-   If the file's big enough that it's not transmitted "instantly", then you'll end up with multiple clients competing for the server's attention, and you should see differences in the behavior of the server with the different thread pool schemes. If you're running the system monitor (or a command line tool like `htop`) you may also see the server using multiple cores to handle different threads in parallel.
+-   On the other hand, if the file's really huge and you start up a ton of clients, ***you risk generating enough load that you severely bog down or even crash key lab services***. To minimize the likelihood of a Bad Thing Happening, please take the following precautions:
     -   Have your client and server both run on the same machine. This way if your experiments do run amok, you'll probably only mess up the client you're sitting at instead of the entire lab.
     -   If you think you need a bigger file, work up to it incrementally. Don't just jump to the biggest file you can find.
     -   Similarly, increase the number of clients incrementally.
     -   Have the file you're reading (and any file you're writing if you don't use `/dev/null`) be in the temp directory ( `/tmp`) instead of someplace like your home directory. Files in your home directory are on the NFS server, so reading them involves going out across the network to the NFS server to access them. Files `/tmp` are actually on the client's local hard drive, so reads and writes will be strictly local and only affect that machine.
 
-Write up a summary of your results. What (if anything) were you able to observe? How, for example, does the execution time of your script scale with the number of times you hit the server in the single- and multi-threaded approaches?
+Write up a summary of your results. What (if anything) were you able to observe? How, for example, does the execution time of your script scale with the number of times you hit the server in the single- and multi-threaded approaches? You probably want to include information
+on the machine you used for your timing experiments as some computers have more cores
+(effective CPUs) than others, and that's likely to impact the results.
 
 The following script might be useful as a tool for spinning up multiple processes that all interact with the server at the same time and time the results. Note that this isn't perfect, as it generates all the client processes on the same computer, which means that they'll all be contending for CPU, disk, and network resources on that box.
 
@@ -79,15 +81,18 @@ The following script might be useful as a tool for spinning up multiple processe
     #!/bin/bash
 
     numCalls=$1
+    bigFile=$2
 
-    for (( i=1; i<=$numCalls; i++ ))
+    for (( i=0; i<$numCalls; i++ ))
     do
         echo "Doing run $i"
-        java echo.EchoClient < some_big_file > /dev/null &
+        java echo.EchoClient < $bigFile > /dev/null &
     done
-    echo "Now waiting"
+    echo "Now waiting for all the processes to terminate"
+    # `date` will output the date *and time* so you can see how long
+    # you had to wait for all the processes to finish.
     date
     wait
-    echo "Done"
+    echo "Done waiting; all processes are finished"
     date
 ```
