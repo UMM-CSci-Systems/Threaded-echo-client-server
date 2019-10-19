@@ -20,10 +20,8 @@ public class EchoServer {
 			Socket socket = serverSocket.accept();
 			InputStream inputStream = socket.getInputStream();
 			OutputStream outputStream = socket.getOutputStream();
-			int b;
-			while ((b = inputStream.read()) != -1) {
-				outputStream.write(b);
-			}
+
+			// Put your code here.
 		}
 	}
 }
