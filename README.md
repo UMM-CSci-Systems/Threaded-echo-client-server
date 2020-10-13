@@ -124,7 +124,8 @@ new thread for every connection) to work. It would be good to try to get at
 least one of the thread pool approaches to work as well. You should try
 throwing a bunch of clients at them, and report on how they handle the load.
 
-* You might find it useful to automate the process of "throwing a bunch of clients at them". You could, for example, have a loop that starts up a bunch of clients and has each one send a file to the server, dumping everything that's returned to `/dev/null`, and runs it in the background.
+* You might find it useful to automate the process of "throwing a bunch of
+  clients at them". You could, for example, have a little shell script (see below) with a loop that starts up a bunch of clients and has each one send a file to the server, dumping everything that's returned to `/dev/null`, and runs it in the background.
   * E.g., `java umm.csci3401.EchoClient < my_file > /dev/null &`
 * If the file's big enough that it's not transmitted "instantly", then you'll end up with multiple clients competing for the server's attention, and you should see differences in the behavior of the server with the different thread pool schemes. If you're running the system monitor (or a command line tool like `htop`) you may also see the server using multiple cores to handle different threads in parallel.
 * On the other hand, if the file's really huge and you start up a ton of clients, ***you risk generating enough load that you severely bog down or even crash key lab services***. To minimize the likelihood of a Bad Thing Happening, please take the following precautions:
@@ -137,7 +138,7 @@ Write up a summary of your results. What (if anything) were you able to observe?
 example, does the execution time of your script scale with the number of times you hit the
 server in the single- and multi-threaded approaches? You probably want to include
 information on the machine you used for your timing experiments as some computers have
-more cores (effective CPUs) than others, and that's likely to impact the results.
+more cores (effective CPUs) than others, and that's likely to impact the results. **Put that in `Results.md` here in your repo.**
 
 The following script might be useful as a tool for spinning up multiple processes that all interact with the server at the same time and time the results. Note that this isn't perfect, as it generates all the client processes on the same computer, which means that they'll all be contending for CPU, disk, and network resources on that box.
 
