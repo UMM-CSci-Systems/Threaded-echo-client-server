@@ -18,6 +18,9 @@ project. It'll start out showing the project as failing (because the starter cod
 doesn't pass the tests), but when you've got everything working it should change
 to a green passing state.
 
+We've created [a very simple example of creating and using threads](https://gist.github.com/NicMcPhee/0f6bdf1e8cfcd4449c819136f7567c0d), and
+there's lots of info on-line about threading in Java.
+
 ## Testing this lab
 
 The testing for this lab is essentially the same as for
