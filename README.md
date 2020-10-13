@@ -29,6 +29,10 @@ The "throw a bunch of clients at the server" idea at the end of the write-up is
 the closest thing to a way of testing for "threaded-ness", but that's a manual
 test instead of an automated test, so it's not as nice or useful.
 
+There are tools specifically designed to stress test servers
+by sending large amounts of traffic their way, but that's
+a layer of complexity we've chosen to avoid so far.
+
 ## Add threads to your echo client
 
 In a previous lab you wrote an echo server and an echo client without threads.
