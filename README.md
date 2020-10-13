@@ -1,33 +1,21 @@
 # Threaded Echo Client-Server
 
-[![Actions Status](https://github.com/UMM-CSci-Systems/Threaded-echo-client-server/workflows/Java%20CI/badge.svg)](https://github.com/UMM-CSci-Systems/Threaded-echo-client-server/actions)
+[![Actions Status](../../workflows/Bats%20tests/badge.svg)](../../actions?query=workflow%3A"Bats+tests")
 
-- [Threaded Echo Client-Server](#threaded-echo-client-server)
-  - [Fix your status badge](#fix-your-status-badge)
-  - [Testing this lab](#testing-this-lab)
-  - [Add threads to your echo client](#add-threads-to-your-echo-client)
-  - [Make your echo server multi-threaded](#make-your-echo-server-multi-threaded)
+* [Threaded Echo Client-Server](#threaded-echo-client-server)
+  * [Testing this lab](#testing-this-lab)
+  * [Add threads to your echo client](#add-threads-to-your-echo-client)
+  * [Make your echo server multi-threaded](#make-your-echo-server-multi-threaded)
 
 Your goals for this lab:
 
 - Re-write your echo client from the previous lab to use threads to separate the two communication directions.
 - Make your echo server multi-threaded
 
-## Fix your status badge
-
 At the top of this lab is a status badge that should display the status of your
 project. It'll start out showing the project as failing (because the starter code
 doesn't pass the tests), but when you've got everything working it should change
 to a green passing state.
-
-For this to work, though, you need to change both URLs in the badge image code up above
-this so the badge reflects the state of _your_ repo; otherwise it will just continuing show
-your project as being in a failing state since our starter code doesn't pass the tests.
-You need to:
-
-- Change URL of `badge.svg` replacing `UMM-CSci-Systems/Threaded-echo-client-server` with
-  your organization and group name.
-- Change the `actions` URL in the same way.
 
 ## Testing this lab
 
