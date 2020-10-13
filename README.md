@@ -4,6 +4,7 @@
 
 * [Threaded Echo Client-Server](#threaded-echo-client-server)
   * [Testing this lab](#testing-this-lab)
+  * [The overall architecture](#the-overall-architecture)
   * [Add threads to your echo client](#add-threads-to-your-echo-client)
   * [Make your echo server multi-threaded](#make-your-echo-server-multi-threaded)
 
@@ -32,6 +33,40 @@ test instead of an automated test, so it's not as nice or useful.
 There are tools specifically designed to stress test servers
 by sending large amounts of traffic their way, but that's
 a layer of complexity we've chosen to avoid so far.
+
+## The overall architecture
+
+This diagram shows the basic communication structure we're proposing
+in more detail below:
+
+![diagram of the communication structure of the threaded echo client-server](Threaded-Echo-Client-Server.png)
+
+There are two key ideas here:
+
+**The client will have _two_ threads.**
+
+* One is _solely_ responsible for
+  reading single bytes from standard input (the keyboard) and writing
+  those bytes to the socket. That's all it does.
+* The other is _solely_ responsible for reading a byte from the
+  socket and writing it to standard output. That's all it does.
+* This nicely decouples the reading and writing activities, and allows
+  other code to continue to run even if one or both of these threads
+  is blocking while waiting for data to come to it.
+
+**The server will have one thread _for each connection_.**
+
+* Every time a connection is made, the server will create a thread
+  specifically to handle that client.
+* Each thread will be responsible for both reading from the socket
+  and writing to the socket.
+* By creating a thread for each client, the server can handle
+  multiple clients at the same time in parallel, without activity
+  (or inactivity) on any client blocking progress for the other
+  clients.
+
+You can (and should) thread the client and server separately, so the
+write-up below treats them as independent pieces of the lab.
 
 ## Add threads to your echo client
 
