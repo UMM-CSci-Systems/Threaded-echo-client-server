@@ -1,12 +1,36 @@
-# Threaded Echo Client-Server
+# Threaded Echo Client-Server <!-- omit in toc -->
 
 [![Actions Status](../../workflows/Bats%20tests/badge.svg)](../../actions?query=workflow%3A"Bats+tests")
 
-* [Threaded Echo Client-Server](#threaded-echo-client-server)
-  * [Testing this lab](#testing-this-lab)
-  * [The overall architecture](#the-overall-architecture)
-  * [Add threads to your echo client](#add-threads-to-your-echo-client)
-  * [Make your echo server multi-threaded](#make-your-echo-server-multi-threaded)
+- [Overview](#overview)
+- [Testing this lab](#testing-this-lab)
+- [The overall architecture](#the-overall-architecture)
+- [Add threads to your echo client](#add-threads-to-your-echo-client)
+- [Make your echo server multi-threaded](#make-your-echo-server-multi-threaded)
+
+## Overview
+
+Threading is a powerful, but often tricky, tool that allows us to
+write _concurrent_ programs, where two or more things are happening
+at once.
+
+This can have several advantages:
+
+- Performance: If there are multiple things happening at the same
+  time on a multi-processor computer, that can reduce the overall
+  time for a computation. This is often referred to as _parallelism_.
+- Reduced blocking: There are times when a program is waiting for
+  something that could take a while, or possibly an unknown period
+  of time. In the Echo Server program, for example, the server has
+  no _a priori_ knowledge of how much data the client will send, so
+  it is forced to wait indefinitely on the client. This _blocks_ the
+  server, and means it can only handle one client at a time. With
+  threads we can create a separate thread for every connection, allowing
+  the server to respond "in parallel" to many clients at the same time.
+- Better logical separation: There are times where a program naturally
+  separates into multiple internal processes that make sense to run
+  "independently" at the same time ("in parallel"). Threads allows us
+  to do this, potentially creating clearer organization for our system.
 
 Your goals for this lab:
 
