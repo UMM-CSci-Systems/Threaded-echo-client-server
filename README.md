@@ -7,6 +7,7 @@
 - [The overall architecture](#the-overall-architecture)
 - [Add threads to your echo client](#add-threads-to-your-echo-client)
 - [Make your echo server multi-threaded](#make-your-echo-server-multi-threaded)
+- [A stress-testing script](#a-stress-testing-script)
 
 ## Overview
 
@@ -32,10 +33,33 @@ This can have several advantages:
   "independently" at the same time ("in parallel"). Threads allows us
   to do this, potentially creating clearer organization for our system.
 
-Your goals for this lab:
+There are, however, a number of challenges that come with this, most of which
+come from the difficulties in synchronizing and communicating between
+threads. Problems can include:
 
-* Re-write your echo client from the previous lab to use threads to separate the two communication directions.
-* Make your echo server multi-threaded
+- How do you communicate information in a reliable way between threads? It
+  turns out that there's a lot of ways in which that can go wrong, often
+  resulting in what are called _race conditions_. In a race condition, you
+  get different results from the program depending on the _timing_ of events
+  in the various threads. These can be particularly difficult because the
+  behavior can vary from one run of the program to another, making debugging
+  super difficult.
+- Race conditions are often addressed using _synchronization_, but getting
+  synchronization correct can be quite tricky, with using too little
+  synchronization leading to race conditions, and using too much leading to
+  either substantial reductions in performance advantages from parallelism
+  or problems called _deadlock_ (where two or more threads block forever,
+  each waiting for another), or both.
+
+We won't become experts in the complexities of concurrent programming in
+just a few labs, but these will hopefully highlight some of the potential
+and challenges.
+
+In this lab you'll:
+
+* Re-write your echo client from the previous lab to use threads to
+  separate the two communication directions.
+* Make your echo server multi-threaded.
 
 At the top of this lab is a status badge that should display the status of your
 project. It'll start out showing the project as failing (because the starter code
@@ -43,7 +67,11 @@ doesn't pass the tests), but when you've got everything working it should change
 to a green passing state.
 
 We've created [a very simple example of creating and using threads](https://gist.github.com/NicMcPhee/0f6bdf1e8cfcd4449c819136f7567c0d), and
-there's lots of info on-line about threading in Java.
+there's lots of info on-line about threading in Java. I think both of these
+short tutorials are useful background for this and some of the subsequent labs:
+
+- [W3Schools threads tutorial](https://www.w3schools.com/java/java_threads.asp)
+- [Geeks for Geeks threads tutorial](https://www.geeksforgeeks.org/java-multithreading-tutorial/)
 
 ## Testing this lab
 
@@ -67,6 +95,12 @@ This diagram shows the basic communication structure we're proposing
 in more detail below:
 
 ![diagram of the communication structure of the threaded echo client-server](Threaded-Echo-Client-Server.png)
+
+:bangbang: **NOTE** This diagram probably is unreadable with a black
+background, so it won't make much or any sense if you're on GitHub in
+dark mode. I think that [this link](https://raw.githubusercontent.com/UMM-CSci-Systems/Threaded-echo-client-server/main/Threaded-Echo-Client-Server.png)
+will display the image one its own and hopefully it will be more readable that
+way.
 
 There are two key ideas here:
 
@@ -132,7 +166,8 @@ keyboard input (through CTRL-D, for example) several things need to happen
 
 One weakness of the echo server from the previous lab is the server can only
 talk to one client at a time; if someone else tries to connect to it they'll
-hang until the first person finishes. In this part of the lab your job is to
+hang until the first person finishes. (You might want to go verify that this
+is true!) In this part of the lab your job is to
 make your server multi-threaded so that it can respond to multiple requests at
 the same time. Essentially each time the server receives a request, it should
 spawn a new thread and process that request entirely within that thread.
@@ -156,10 +191,10 @@ throwing a bunch of clients at them, and report on how they handle the load.
   * E.g., `java umm.csci3401.EchoClient < my_file > /dev/null &`
 * If the file's big enough that it's not transmitted "instantly", then you'll end up with multiple clients competing for the server's attention, and you should see differences in the behavior of the server with the different thread pool schemes. If you're running the system monitor (or a command line tool like `htop`) you may also see the server using multiple cores to handle different threads in parallel.
 * On the other hand, if the file's really huge and you start up a ton of clients, ***you risk generating enough load that you severely bog down or even crash key lab services***. To minimize the likelihood of a Bad Thing Happening, please take the following precautions:
-  * Have your client and server both run on the same machine. This way if your experiments do run amok, you'll probably only mess up the client you're sitting at instead of the entire lab.
+  * Have your client and server both run on the same machine. This way if your experiments do run amok, you'll probably only mess up the computer you're sitting at instead of the entire lab.
   * If you think you need a bigger file, work up to it incrementally. Don't just jump to the biggest file you can find.
   * Similarly, increase the number of clients incrementally.
-  * Have the file you're reading (and any file you're writing if you don't use `/dev/null`) be in the temp directory ( `/tmp`) instead of someplace like your home directory. Files in your home directory are on the NFS server, so reading them involves going out across the network to the NFS server to access them. Files `/tmp` are actually on the client's local hard drive, so reads and writes will be strictly local and only affect that machine.
+  * Have the file you're reading (and any file you're writing if you don't use `/dev/null`) be in the temp directory ( `/tmp`) instead of someplace like your home directory. Files in your home directory are on the NFS server, so reading them involves going out across the network to the NFS server to access them. Files `/tmp` are actually in memory (or on the client's local hard drive), so reads and writes will be strictly local and only affect that machine.
 
 Write up a summary of your results. What (if anything) were you able to observe? How, for
 example, does the execution time of your script scale with the number of times you hit the
@@ -167,7 +202,12 @@ server in the single- and multi-threaded approaches? You probably want to includ
 information on the machine you used for your timing experiments as some computers have
 more cores (effective CPUs) than others, and that's likely to impact the results. **Put that in `Results.md` here in your repo.**
 
+## A stress-testing script
+
 The following script might be useful as a tool for spinning up multiple processes that all interact with the server at the same time and time the results. Note that this isn't perfect, as it generates all the client processes on the same computer, which means that they'll all be contending for CPU, disk, and network resources on that box.
+
+This takes two command-line arguments. The first is how many (parallel) calls to
+make and the second is the file you want to transfer.
 
 ```bash
     #!/bin/bash
