@@ -210,7 +210,7 @@ This takes two command-line arguments. The first is how many (parallel) calls to
 make and the second is the file you want to transfer.
 
 ```bash
-    #!/bin/bash
+   #!/bin/bash
 
     numCalls=$1
     bigFile=$2
@@ -218,13 +218,20 @@ make and the second is the file you want to transfer.
     for (( i=0; i<$numCalls; i++ ))
     do
         echo "Doing run $i"
-        java echo.EchoClient < $bigFile > /dev/null &
+        java echoserver.EchoClient < $bigFile > /dev/null &
     done
     echo "Now waiting for all the processes to terminate"
-    # `date` will output the date *and time* so you can see how long
+    # `date` will record the date *and time* to record how long
     # you had to wait for all the processes to finish.
-    date
+    # The '+%s%3N' indicates that we want milisecond precision
+    # on the current time (default is only accurate to the second)
+    startTime=$(date +%s%3N)
     wait
     echo "Done waiting; all processes are finished"
-    date
+    endTime=$(date +%s%3N)
+    # Subtract the end time from the start time,
+    # since both are integers representing the number of milliseconds
+    # since the [Unix epoch](https://en.wikipedia.org/wiki/Unix_time).
+    runTime=$((endTime-startTime))
+    echo "Ran in $runTime ms."
 ```
