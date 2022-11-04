@@ -154,7 +154,7 @@ keyboard input (through CTRL-D, for example) several things need to happen
   - This is necessary so that the server can finish sending any remaining data.
   - It's also necessary for the server to shut down the socket after it's done, and it won't know to do that unless it hears from the client that we're done.
 - ***BUT*** I need to do this without closing down the socket, since there might be data coming back from the server that hasn't been sent yet.
-  - This means I can't close the socket, or even close the `OutputStream` that connects the client to the server. (If I close the stream, it closes the socket. This isn't necessarily obvious, but [it's documented in the Java API](http://java.sun.com/javase/6/docs/api/java/net/Socket.html#getOutputStream()).)
+  - This means I can't close the socket, or even close the `OutputStream` that connects the client to the server. (If I close the stream, it closes the socket. This isn't necessarily obvious, but [it's documented in the Java API](https://docs.oracle.com/javase/8/docs/api/java/net/Socket.html#getOutputStream--).)
 - I found the `Socket.shutdownOutput` method *very* useful in this regard :-).
 - I also found it necessary to call `flush()` on my standard output to make sure the last bytes were written out before that standard output thread finished up.
 - One way to test that you're handling binary data correctly is to send and receive a JPEG. You could, for example, use the picture of pumpkins (`test/etc/pumpkins.jpg`), send it, and compare what you get back with the original:
@@ -176,7 +176,7 @@ If you just take the straightforward approach and create a new thread every
 time there's a connection, then you can potentially kill the server by
 spawning more threads than it can handle. An alternative is to use thread
 pools, which are more controlled ways of creating threads. Check out the
-Javadocs for [Executors](http://download.oracle.com/javase/6/docs/api/java/util/concurrent/Executors.html) and [ExecutorService](http://download.oracle.com/javase/6/docs/api/java/util/concurrent/ExecutorService.html)
+Javadocs for [Executors](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/Executors.html) and [ExecutorService](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/ExecutorService.html)
 for the details, but the short version is you can create things like fixed
 thread pools (where there are a fixed number of threads) or cached thread
 pools (where old threads are re-used instead of allocating new threads).
